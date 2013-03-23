@@ -1,0 +1,107 @@
+ <!DOCTYPE xhtml>
+<html lang="en"> 
+<head> 
+  <meta charset="utf-8" /> 
+  <title>Select Measure Times
+</title>
+<link type="text/css" rel="stylesheet" href="/static/css/style.css"/>
+<script src="/static/jquery.js"></script>
+<script src="/static/augnotes.js"></script>
+<script src="/static/augnotesui.js"></script>
+<script src="/static/augnotesTimeEdit.js"></script>
+<script>
+	DATA_GOES_HERE
+</script>
+<script type="text/javascript" charset="utf-8">
+$(function() {
+	window.augnotes = new AugmentedNotes(augmented_notes_data);
+	var img_elt = $("img.score");
+	var audio_elt = $("audio#aplayer");
+	window.augnotes_ui = new AugmentedNotesUI(augnotes, img_elt, audio_elt);
+	window.an_time_edit = new AugNotesTimeEdit(augnotes);
+
+	
+	$(".next").click(function() {
+		augnotes_ui.goToNextMeasure();
+	});
+	
+	$(".prev").click(function() {
+		augnotes_ui.goToPrevMeasure();
+	});
+	
+	$(".startover").click(function() {
+		augnotes_ui.setCurrentTime(0);
+	});
+	
+
+	$(".save").click(function() {
+		var measure_id = augnotes_ui.currentMeasureID();
+		var current_time = augnotes_ui.currentTime();
+		var measure = augnotes.getMeasure(measure_id);
+		// If the measure end is <= 0, we haven't filled it in yet, so we want
+		// to update this measure.
+
+		// Likewise, if the end is NOT <= 0, but the current time is closer to
+		// the end of this measure than to the beginning, we still want to
+		// update this measure.
+
+		// If the end is NOT <= 0, and the current time is closer to the
+		// beginning of this measure than to the end, then we actually want to
+		// change the end time of the PREVIOUS measure.
+		if (measure.end >0 && (Math.abs(current_time - measure.start) < Math.abs(current_time - measure.end))) {
+			measure_id = augnotes.getPrevMeasureID(measure_id);
+		}
+		// Now we update the measure.
+		var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
+		var input = inputs_on_page.eq(measure_id.measure_num);
+		input.val(current_time.toFixed(2));
+		input.change();
+	});
+
+
+	function showInputsForCurrentPage() {
+		var measure_id = augnotes_ui.currentMeasureID();
+		an_time_edit.showInputsForPage(measure_id.page_num);
+	};
+
+	$(augnotes_ui).on("AugmentedNotesUI-page_change", function() {
+		showInputsForCurrentPage();
+	});
+	$(augnotes_ui).on("AugmentedNotesUI-measure_change", function() {
+		var measure_id = augnotes_ui.currentMeasureID();
+		var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
+		var input = inputs_on_page.eq(measure_id.measure_num);
+		$("input.current").removeClass("current");
+		input.addClass("current");
+	})
+
+	$(".send_augnotes").click(function() {
+		$.post("http://localhost:5000/time_edit/"+augnotes.data.dataset_name, {"data":JSON.stringify(augnotes.data)});
+	})
+});
+</script>
+</head>
+<body>
+<div class="main">
+	<h1>Set the Measure Times</h1>
+	<div class="left_panel">
+		<img class="score" src="" width="350" alt="Scan">
+	</div>
+	<div class="right_panel">
+		<div class="audtools">
+			<audio style="width:100%" src="" controls="controls" id='aplayer'></audio>
+			<button class="save">save</button>
+			<button class="prev">previous</button>
+			<button class="next">next</button>
+			<button class="play">play measure</button>
+			<button class="startover">back to start</button>
+		</div>
+		<div class="time">
+			<ul id="time_list">
+			</ul>
+		</div>
+	</div>
+	<button type="button" class="send_augnotes">Send to server!</button>
+</div>
+</body>
+</html>
