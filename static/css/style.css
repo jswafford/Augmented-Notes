@@ -2,13 +2,19 @@ body {
   background-image: url("../img/musik2.jpg");
   background-repeat: none;
   background-size: 650px;
-  background-position: fixed;
+  background-attachment: fixed;
 /*	background-image: url("../img/parchment.jpg");
 */}
-div.main {
-	width:690px;
-	border:3px solid black;
-}
+
+/*div.time_edit_center {
+	width:700px;
+  height:600px;
+	border:2px solid black;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 2px 2px 2px #000;
+  background-color: white;
+}*/
 div.content {
   padding: 25px;
 }
@@ -16,38 +22,85 @@ div.instructions {
   padding:20px;
   line-height:150%;
 }
-/*img.logo {
-  padding:1px;
-}*/
+p {
+  padding:5px 25px;
+}
+
 h1 {
 	text-align:center;
+  font-size: 150%;
 }
 div.left_panel {
 	float:left;
-	border:3px solid black;
+	border-top:1px solid #000;
+  border-right:1px solid #000;
 }
 div.right_panel {
+  background-color: white;
 	float:left;
-	width:300px;
-	border:4px solid black;
+	width:309px;
+  padding:20px;
+	border-top:1px solid #000;
 }
 div.time {
-	border:3px solid black;
-}
+/*	border:1.5px solid black;
+*/}
 ul {
 	list-style:none;
 }
 div.box {
-	border: 4px solid #405544;
-	background-color: rgba(255,255,204,0);
-	position:absolute; 
+  border: 4px solid rgb(128,81,44);
+  background-color: rgba(0,0,0,0);
+  position:absolute;
+}
+.toolbar {
+  padding-bottom:10px;
+}
+input.measure_time {
+  width: 50%;
+  margin-left:auto;
+  margin-right:auto;
+  display:block;
+  margin-top:5px;
+  border: 1px solid #000;
 }
 input.error {
 	border-color: red;
 }
 input.current {
-	background-color: #CCFFCC;
-}	
+	background-color: #80512C;
+  color:white;
+}
+
+.send_augnotes {
+  width: 70%;
+  margin-left:auto;
+  margin-right:auto;
+  display:block;
+  margin-top:40px;
+  font-size:120%;
+  border: 1px solid black;
+  background: white;
+  /*border-radius: 10px*/
+}
+.send_augnotes:hover {
+  width: 75%;
+  font-size:130%;
+  background: #EEE;
+  /*border-radius: 10px*/
+}
+.footer {
+  border-top: 2px solid black;
+  font-size: 90%;
+  text-align: center;
+  padding: 5px 5px;
+  height: 34px;
+  line-height:30px;
+}
+
+.footer a.license {
+  float:left;
+}
 
 /*form.upload {
   padding:30px;
@@ -56,33 +109,33 @@ input.current {
 .center-content {
   margin-left: auto;
   margin-right: auto;
-  width: 612px;
-  height: 600px;
-  border: 5px solid black;
-  box-shadow: 3px 3px 4px #000;
+  width: 700px;
+  border: 2px solid #000;
+  /*box-shadow: 3px 3px 4px #000;*/
   background-color: white;
 /*  padding: 15px;
 *//*  background-image: url("../img/parchment.jpg");
 */}
 
 #header-left {
-  width:305px;
+  width:349px;
   /*display:inline-block;*/
   float:left;
-  border-right: 2px solid black;
+  border-right: 2px solid #000;
   /*padding: 10px;*/
 }
 #header-left .header-logo {
   width:275px;
-  margin-left:15px;
-  margin-right:15px;
+  margin-left:auto;
+  margin-right:auto;
+  display:block;
   margin-top:5px;
   padding: 3px;
 }
 #header-right {
   float:right;
   /*display:inline-block;*/
-  width: 305px;
+  width: 349px;
   /*width: 322px;*/
   height: 111px;
 }
@@ -97,5 +150,5 @@ input.current {
 
 #header {
 /*  padding-bottom:3px;
-*/  border-bottom: 3px solid black;
+*/  border-bottom: 2px solid #000;
 }

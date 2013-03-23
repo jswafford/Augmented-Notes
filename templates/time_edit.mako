@@ -1,23 +1,23 @@
- <!DOCTYPE xhtml>
+<!DOCTYPE xhtml>
 <html lang="en"> 
 <head> 
   <meta charset="utf-8" /> 
   <title>Select Measure Times
 </title>
 <link type="text/css" rel="stylesheet" href="/static/css/style.css"/>
-<script src="/static/jquery.js"></script>
-<script src="/static/augnotes.js"></script>
-<script src="/static/augnotesui.js"></script>
-<script src="/static/augnotesTimeEdit.js"></script>
+<script src="/static/js/jquery.js"></script>
+<script src="/static/js/augnotes.js"></script>
+<script src="/static/js/augnotesui.js"></script>
+<script src="/static/js/augnotesTimeEdit.js"></script>
 <script>
-	DATA_GOES_HERE
+	var augmented_notes_data = ${data};
 </script>
 <script type="text/javascript" charset="utf-8">
 $(function() {
 	window.augnotes = new AugmentedNotes(augmented_notes_data);
-	var img_elt = $("img.score");
+	var score_div = $(".score-div");
 	var audio_elt = $("audio#aplayer");
-	window.augnotes_ui = new AugmentedNotesUI(augnotes, img_elt, audio_elt);
+	window.augnotes_ui = new AugmentedNotesUI(augnotes, score_div, audio_elt);
 	window.an_time_edit = new AugNotesTimeEdit(augnotes);
 
 	
@@ -82,26 +82,48 @@ $(function() {
 </script>
 </head>
 <body>
-<div class="main">
+<div class="center-content">	
+	<div id="header">
+	<div id="header-left">
+    	<img src="/static/img/augnotes_badge.png" class="header-logo">
+  	</div>
+  	<div id="header-right">
+    	<div class="content">
+      <b>
+        A Tool for Producing Interdisciplinary Music and Text Scholarship
+      </b>
+    	</div>
+		</div>
+		<div style="clear:both"></div>
+	</div>
 	<h1>Set the Measure Times</h1>
-	<div class="left_panel">
-		<img class="score" src="" width="350" alt="Scan">
+	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. Once all the measures have been completed, you can click the play button to make sure the box moves in time with the music.
+	<div class="left_panel score-div">
+		<div class="score-page">
+			<img class="score" src="${urls['page']}" width="350" alt="Scan">
+		</div>
 	</div>
 	<div class="right_panel">
 		<div class="audtools">
-			<audio style="width:100%" src="" controls="controls" id='aplayer'></audio>
-			<button class="save">save</button>
-			<button class="prev">previous</button>
-			<button class="next">next</button>
-			<button class="play">play measure</button>
-			<button class="startover">back to start</button>
+			<audio style="width:100%" controls="controls" id='aplayer'>
+				<source id="ogg" src="${urls['ogg']}" type="audio/ogg"/>
+				<source id="mp3" src="${urls['mp3']}" type="audio/mp3"/>
+				Your browser does not support the audio tag!
+			</audio>
+			<div class="toolbar">
+				<button class="save">save</button>
+				<button class="prev">previous</button>
+				<button class="next">next</button>
+				<button class="startover">back to start</button>
+			</div>
 		</div>
 		<div class="time">
-			<ul id="time_list">
-			</ul>
+			<div id="time_list">
+			</div>
 		</div>
+		<button type="button" class="send_augnotes">Submit the times</button>
 	</div>
-	<button type="button" class="send_augnotes">Send to server!</button>
+	<div style="clear:both"></div>
 </div>
 </body>
 </html>
