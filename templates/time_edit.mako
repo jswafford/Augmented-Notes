@@ -1,101 +1,85 @@
-<!DOCTYPE xhtml>
-<html lang="en"> 
-<head> 
-  <meta charset="utf-8" /> 
-  <title>Select Measure Times
-</title>
-<link type="text/css" rel="stylesheet" href="/static/css/style.css"/>
-<script src="/static/js/jquery.js"></script>
-<script src="/static/js/augnotes.js"></script>
-<script src="/static/js/augnotesui.js"></script>
-<script src="/static/js/augnotesTimeEdit.js"></script>
-<script>
-	var augmented_notes_data = ${data};
-</script>
-<script type="text/javascript" charset="utf-8">
-$(function() {
-	window.augnotes = new AugmentedNotes(augmented_notes_data);
-	var score_div = $(".score-div");
-	var audio_elt = $("audio#aplayer");
-	window.augnotes_ui = new AugmentedNotesUI(augnotes, score_div, audio_elt);
-	window.an_time_edit = new AugNotesTimeEdit(augnotes);
+<%inherit file="base.mako"/>
 
-	
-	$(".next").click(function() {
-		augnotes_ui.goToNextMeasure();
+<%block name="title">
+	Select Measure Times
+</%block>
+
+<%block name="extrahead">
+	<script src="/static/js/augnotes.js"></script>
+	<script src="/static/js/augnotesui.js"></script>
+	<script src="/static/js/augnotesTimeEdit.js"></script>
+	<script>
+		var augmented_notes_data = ${data};
+	</script>
+	<script type="text/javascript" charset="utf-8">
+	$(function() {
+		window.augnotes = new AugmentedNotes(augmented_notes_data);
+		var score_div = $(".score-div");
+		var audio_elt = $("audio#aplayer");
+		window.augnotes_ui = new AugmentedNotesUI(augnotes, score_div, audio_elt);
+		window.an_time_edit = new AugNotesTimeEdit(augnotes);
+		
+		$(".next").click(function() {
+			augnotes_ui.goToNextMeasure();
+		});
+		
+		$(".prev").click(function() {
+			augnotes_ui.goToPrevMeasure();
+		});
+		
+		$(".startover").click(function() {
+			augnotes_ui.setCurrentTime(0);
+		});
+		
+		$(".save").click(function() {
+			var measure_id = augnotes_ui.currentMeasureID();
+			var current_time = augnotes_ui.currentTime();
+			var measure = augnotes.getMeasure(measure_id);
+			// If the measure end is <= 0, we haven't filled it in yet, so we want
+			// to update this measure.
+
+			// Likewise, if the end is NOT <= 0, but the current time is closer to
+			// the end of this measure than to the beginning, we still want to
+			// update this measure.
+
+			// If the end is NOT <= 0, and the current time is closer to the
+			// beginning of this measure than to the end, then we actually want to
+			// change the end time of the PREVIOUS measure.
+			if (measure.end >0 && (Math.abs(current_time - measure.start) < Math.abs(current_time - measure.end))) {
+				measure_id = augnotes.getPrevMeasureID(measure_id);
+			}
+			// Now we update the measure.
+			var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
+			var input = inputs_on_page.eq(measure_id.measure_num);
+			input.val(current_time.toFixed(2));
+			input.change();
+		});
+
+		function showInputsForCurrentPage() {
+			var measure_id = augnotes_ui.currentMeasureID();
+			an_time_edit.showInputsForPage(measure_id.page_num);
+		};
+
+		$(augnotes_ui).on("AugmentedNotesUI-page_change", function() {
+			showInputsForCurrentPage();
+		});
+		$(augnotes_ui).on("AugmentedNotesUI-measure_change", function() {
+			var measure_id = augnotes_ui.currentMeasureID();
+			var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
+			var input = inputs_on_page.eq(measure_id.measure_num);
+			$("input.current").removeClass("current");
+			input.addClass("current");
+		})
+
+		$(".send_augnotes").click(function() {
+			$.post("http://localhost:5000/time_edit/"+augnotes.data.dataset_name, {"data":JSON.stringify(augnotes.data)});
+		})
 	});
-	
-	$(".prev").click(function() {
-		augnotes_ui.goToPrevMeasure();
-	});
-	
-	$(".startover").click(function() {
-		augnotes_ui.setCurrentTime(0);
-	});
-	
-
-	$(".save").click(function() {
-		var measure_id = augnotes_ui.currentMeasureID();
-		var current_time = augnotes_ui.currentTime();
-		var measure = augnotes.getMeasure(measure_id);
-		// If the measure end is <= 0, we haven't filled it in yet, so we want
-		// to update this measure.
-
-		// Likewise, if the end is NOT <= 0, but the current time is closer to
-		// the end of this measure than to the beginning, we still want to
-		// update this measure.
-
-		// If the end is NOT <= 0, and the current time is closer to the
-		// beginning of this measure than to the end, then we actually want to
-		// change the end time of the PREVIOUS measure.
-		if (measure.end >0 && (Math.abs(current_time - measure.start) < Math.abs(current_time - measure.end))) {
-			measure_id = augnotes.getPrevMeasureID(measure_id);
-		}
-		// Now we update the measure.
-		var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
-		var input = inputs_on_page.eq(measure_id.measure_num);
-		input.val(current_time.toFixed(2));
-		input.change();
-	});
+	</script>
+</%block>
 
 
-	function showInputsForCurrentPage() {
-		var measure_id = augnotes_ui.currentMeasureID();
-		an_time_edit.showInputsForPage(measure_id.page_num);
-	};
-
-	$(augnotes_ui).on("AugmentedNotesUI-page_change", function() {
-		showInputsForCurrentPage();
-	});
-	$(augnotes_ui).on("AugmentedNotesUI-measure_change", function() {
-		var measure_id = augnotes_ui.currentMeasureID();
-		var inputs_on_page = $("input.measure_time.page" + measure_id.page_num.toString());
-		var input = inputs_on_page.eq(measure_id.measure_num);
-		$("input.current").removeClass("current");
-		input.addClass("current");
-	})
-
-	$(".send_augnotes").click(function() {
-		$.post("http://localhost:5000/time_edit/"+augnotes.data.dataset_name, {"data":JSON.stringify(augnotes.data)});
-	})
-});
-</script>
-</head>
-<body>
-<div class="center-content">	
-	<div id="header">
-	<div id="header-left">
-    	<img src="/static/img/augnotes_badge.png" class="header-logo">
-  	</div>
-  	<div id="header-right">
-    	<div class="content">
-      <b>
-        A Tool for Producing Interdisciplinary Music and Text Scholarship
-      </b>
-    	</div>
-		</div>
-		<div style="clear:both"></div>
-	</div>
+<%block name="content">
 	<h1>Set the Measure Times</h1>
 	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. Once all the measures have been completed, you can click the play button to make sure the box moves in time with the music.
 	<div class="left_panel score-div">
@@ -124,6 +108,4 @@ $(function() {
 		<button type="button" class="send_augnotes">Submit the times</button>
 	</div>
 	<div style="clear:both"></div>
-</div>
-</body>
-</html>
+</%block>
