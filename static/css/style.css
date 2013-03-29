@@ -15,16 +15,14 @@ body {
   box-shadow: 2px 2px 2px #000;
   background-color: white;
 }*/
-div.content {
-  /*padding: 25px;*/
-}
+
 div.instructions {
   padding:20px;
   line-height:150%;
 }
-p {
+/*p {
   padding:5px 25px;
-}
+}*/
 
 h1 {
 	text-align:center;
@@ -148,4 +146,9 @@ input.current {
 #header {
 /*  padding-bottom:3px;
 */  border-bottom: 2px solid #000;
+}
+
+.upload-label {
+  display:inline-block;
+  width:120px;
 }

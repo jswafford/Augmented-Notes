@@ -80,12 +80,16 @@
 
 
 <%block name="content">
+	<div class="instructions">
 	<h1>Set the Measure Times</h1>
-	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. Once all the measures have been completed, you can click the play button to make sure the box moves in time with the music.
+	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. Once all the measures have been completed, you can click the play button to make sure the box moves in time with the music.</p>
+	</div>
 	<div class="left_panel score-div">
-		<div class="score-page">
-			<img class="score" src="${urls['page']}" width="350" alt="Scan">
-		</div>
+		% for url in urls['pages']:
+			<div class="score-page">
+				<img class="score" src="${url}" width="350" alt="Scan">
+			</div>
+		% endfor
 	</div>
 	<div class="right_panel">
 		<div class="audtools">
