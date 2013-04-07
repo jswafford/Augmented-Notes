@@ -1,5 +1,9 @@
 <%inherit file="base.mako"/>
 
+<%!
+	import json
+%>
+
 <%block name="title">
 	Select Measure Times
 </%block>
@@ -9,7 +13,7 @@
 	<script src="/static/js/augnotesui.js"></script>
 	<script src="/static/js/augnotesTimeEdit.js"></script>
 	<script>
-		var augmented_notes_data = ${data};
+		var augmented_notes_data = ${json.dumps(data)};
 	</script>
 	<script type="text/javascript" charset="utf-8">
 	$(function() {

@@ -17,6 +17,9 @@
 import os
 import urllib
 import webapp2
+import sys
+sys.path.append("/usr/local/lib/python2.7/site-packages/")
+import lxml
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -25,6 +28,8 @@ from mako.lookup import TemplateLookup
 
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
+
+from parse_mei import parse_mei
 
 templates = TemplateLookup(directories=['templates'])
 
@@ -124,7 +129,8 @@ class TimeEditHandler(webapp2.RequestHandler):
     urls['ogg'] = serve(song.ogg.key())
     urls['mei'] = serve(song.mei.key())
     urls['pages'] = [serve(key) for key in song.page_list]
-    data = blobstore.BlobReader(song.mei).read()
+    mei = blobstore.BlobReader(song.mei).read()
+    data = parse_mei(mei)
     template = templates.get_template("time_edit.mako")
     self.response.out.write(template.render(data=data, urls=urls))
 
