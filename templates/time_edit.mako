@@ -19,7 +19,7 @@
 	$(function() {
 		window.augnotes = new AugmentedNotes(augmented_notes_data);
 		var score_div = $(".score-div");
-		var audio_elt = $("audio#aplayer");
+		var audio_elt = $(".audtools audio");
 		window.augnotes_ui = new AugmentedNotesUI(augnotes, score_div, audio_elt);
 		window.an_time_edit = new AugNotesTimeEdit(augnotes);
 		
@@ -59,6 +59,7 @@
 			input.change();
 		});
 
+
 		function showInputsForCurrentPage() {
 			var measure_id = augnotes_ui.currentMeasureID();
 			an_time_edit.showInputsForPage(measure_id.page_num);
@@ -76,7 +77,7 @@
 		})
 
 		$(".send_augnotes").click(function() {
-			$.post("http://localhost:5000/time_edit/"+augnotes.data.dataset_name, {"data":JSON.stringify(augnotes.data)});
+			$.post("/time_edit/"+${song_id}, {"data":JSON.stringify(augnotes.data)});
 		})
 	});
 	</script>
@@ -97,7 +98,7 @@
 	</div>
 	<div class="right_panel">
 		<div class="audtools">
-			<audio style="width:100%" controls="controls" id='aplayer'>
+			<audio style="width:100%" controls="controls">
 				<source id="ogg" src="${urls['ogg']}" type="audio/ogg"/>
 				<source id="mp3" src="${urls['mp3']}" type="audio/mp3"/>
 				Your browser does not support the audio tag!

@@ -20,6 +20,9 @@ import webapp2
 import sys
 sys.path.append("/usr/local/lib/python2.7/site-packages/")
 import lxml
+import zipfile
+import cStringIO
+import json
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -36,36 +39,33 @@ templates = TemplateLookup(directories=['templates'])
 class Song(db.Model):
   mp3 = blobstore.BlobReferenceProperty(required=True)
   ogg = blobstore.BlobReferenceProperty(required=True)
-  mei = blobstore.BlobReferenceProperty(required=True)
+  mei = blobstore.BlobReferenceProperty(required=False)
+  json = db.TextProperty(required=True)
   page_list = db.ListProperty(blobstore.BlobKey, required=True)
 
-def make_balfe():
+def make_example():
   from google.appengine.api import files
   file_name = files.blobstore.create(mime_type='audio/mp3')
   with files.open(file_name, 'a') as f:
-    f.write(open("tmp/music.mp3").read())
+    f.write(open("example_data/music.mp3").read())
   files.finalize(file_name)
   mp3 = files.blobstore.get_blob_key(file_name)
   file_name = files.blobstore.create(mime_type='audio/ogg')
   with files.open(file_name, 'a') as f:
-    f.write(open("tmp/music.ogg").read())
+    f.write(open("example_data/music.ogg").read())
   files.finalize(file_name)
   ogg = files.blobstore.get_blob_key(file_name)
-  file_name = files.blobstore.create(mime_type='text/javascript')
-  with files.open(file_name, 'a') as f:
-    f.write(open("tmp/data.js").read())
-  files.finalize(file_name)
-  mei = files.blobstore.get_blob_key(file_name)
+  json_string = open("example_data/data.js").read()
   import glob
   page_list = []
-  for img_name in glob.glob("tmp/*.jpg"):
-    file_name = files.blobstore.create(mime_type='image/jpeg')
+  for img_name in glob.glob("example_data/pages/*.jpg"):
+    file_name = files.blobstore.create(mime_type='image/jpeg',
+      _blobinfo_uploaded_filename=img_name.split("/")[-1])
     with files.open(file_name, 'a') as f:
       f.write(open(img_name).read())
     files.finalize(file_name)
     page_list.append(files.blobstore.get_blob_key(file_name))
-  page_list = page_list
-  balfe_song = Song(mp3=mp3, ogg=ogg, page_list=page_list, mei=mei, uid="balfe_test")
+  song = Song(mp3=mp3, ogg=ogg, page_list=page_list, json=json_string, uid="example")
   song.put()
   return song
 
@@ -74,6 +74,8 @@ def valid_user(user):
   return user is not None and user.email() in allowed_emails
 
 def check_login(handler):
+  if handler.request.host.startswith("localhost"):
+    return
   user = users.get_current_user()
   if not valid_user(user):
     handler.redirect('http://anglophileinacademia.blogspot.com/2013/01/a-progress-update-and-important.html')
@@ -99,8 +101,16 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     mp3 = mp3_list[0].key()
     ogg = ogg_list[0].key()
     mei = mei_list[0].key()
+    json_data = parse_mei(blobstore.BlobReader(mei).read())
     page_list = [page.key() for page in page_list]
-    song = Song(mp3=mp3, ogg=ogg, mei=mei, page_list=page_list, uid="foo")
+    song = Song(
+      mp3=mp3,
+      ogg=ogg,
+      mei=mei,
+      json=json.dumps(json_data),
+      page_list=page_list, 
+      uid="foo"
+    )
     song.put()
     self.redirect("/time_edit/{0}".format(song.key().id()))
 
@@ -127,12 +137,78 @@ class TimeEditHandler(webapp2.RequestHandler):
     urls = {}
     urls['mp3'] = serve(song.mp3.key())
     urls['ogg'] = serve(song.ogg.key())
-    urls['mei'] = serve(song.mei.key())
     urls['pages'] = [serve(key) for key in song.page_list]
-    mei = blobstore.BlobReader(song.mei).read()
-    data = parse_mei(mei)
+    data = json.loads(song.json)
     template = templates.get_template("time_edit.mako")
-    self.response.out.write(template.render(data=data, urls=urls))
+    self.response.out.write(template.render(data=data, urls=urls, song_id=song_id))
+
+  def post(self, song_id):
+    check_login(self)
+    try:
+      song_id = int(song_id)
+    except ValueError:
+      self.error(404)
+      return
+    song = Song.get_by_id(song_id)
+    song.json = self.request.get('data')
+    song.put()
+    self.response.out.write("ok");
+
+class PreviewHandler(webapp2.RequestHandler):
+  def get(self, song_id):
+    check_login(self)
+    try:
+      song_id = int(song_id)
+    except ValueError:
+      self.error(404)
+      return
+    song = Song.get_by_id(song_id)
+    urls = {}
+    urls['mp3'] = serve(song.mp3.key())
+    urls['ogg'] = serve(song.ogg.key())
+    urls['pages'] = [serve(key) for key in song.page_list]
+    data = json.loads(song.json)
+    template = templates.get_template("export/archive.mako")
+    self.response.out.write(template.render(data=data, urls=urls, song_id=song_id))
+
+
+class ZipFileHandler(webapp2.RequestHandler):
+  def get(self, song_id):
+    check_login(self)
+    try:
+      song_id = int(song_id)
+    except ValueError:
+      self.error(404)
+      return
+    song = Song.get_by_id(song_id)
+
+    output = cStringIO.StringIO()
+    z = zipfile.ZipFile(output,'w')
+    z.writestr("export/data/music.mp3", blobstore.BlobReader(song.mp3).read())
+    z.writestr("export/data/music.ogg", blobstore.BlobReader(song.ogg).read())
+    z.writestr("export/static/js/augnotes.js", open("export_assets/augnotes.js").read())
+    z.writestr("export/static/js/augnotesui.js", open("export_assets/augnotesui.js").read())
+    z.writestr("export/static/js/jquery.js", open("export_assets/jquery.js").read())
+    z.writestr("export/static/css/export.css", open("export_assets/export.css").read())
+    page_urls = []
+    for page in song.page_list:
+      page_info = blobstore.BlobInfo.get(page)
+      fname = "export/data/pages/{0}".format(page_info.filename)
+      page_urls.append("./data/pages/{0}".format(page_info.filename))
+      z.writestr(fname, blobstore.BlobReader(page).read())
+    urls = {}
+    urls['mp3'] = "./data/music.mp3"
+    urls['ogg'] = "./data/music.ogg"
+    urls['pages'] = page_urls
+    data = json.loads(song.json)
+    template = templates.get_template("export/archive.mako")
+    page_src = template.render(data=data, urls=urls, song_id=song_id)
+    z.writestr("export/archive.html", page_src)
+    z.close()
+
+    self.response.headers["Content-Type"] = "multipart/x-zip"
+    self.response.headers['Content-Disposition'] = "attachment; filename=test.zip"
+    self.response.out.write(output.getvalue())
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
   def get(self, resource):
@@ -141,12 +217,20 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
     blob_info = blobstore.BlobInfo.get(resource)
     self.send_blob(blob_info)
 
+class ExampleHandler(webapp2.RequestHandler):
+  def get(self):
+    song = make_example()
+    self.redirect("/time_edit/{0}".format(song.key().id()))
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/upload', UploadHandler),
     ('/login', SignInHandler),
     ('/serve/([^/]+)', ServeHandler),
     ('/time_edit/([^/]+)', TimeEditHandler),
+    ('/preview/([^/]+)', PreviewHandler),
+    ('/zip/([^/]+)', ZipFileHandler),
+    ('/example', ExampleHandler)
   ],
   debug=True)
 
