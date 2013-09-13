@@ -116,6 +116,14 @@ $(window).load(function(){
   function push_boxes_to_augnotes() {
     $(".score-page").each(function(page_num) {
       var score_page = $(this);
+      var visible = score_page.is(":visible");
+      if (!visible) {
+        score_page.css({
+          'position':'absolute',
+          'display':'block',
+          'visibility':'hidden'
+        });
+      }
       var width_scale = score_page.data("width_scale");
       var height_scale = score_page.data("height_scale");
       var page_data = augnotes.data.pages[page_num];
@@ -126,9 +134,16 @@ $(window).load(function(){
         var top = Math.round(box.position().top / height_scale);
         var width = Math.round(box.width() / width_scale);
         var height = Math.round(box.height() / height_scale);
-        console.log(left, top, width, height, width_scale, height_scale);
         page_data.measure_bounds[measure_num] = [left, top, width, height];
+        window.box = box;
       });
+      if (!visible) {
+        score_page.css({
+          'position':'static',
+          'display':'none',
+          'visibility':'visible'
+        });
+      }
       var nmeasures = page_data.measure_bounds.length;
       var tmp = page_data.measure_ends;
       page_data.measure_ends = []
@@ -138,17 +153,15 @@ $(window).load(function(){
         else
           page_data.measure_ends[i] = null;
       }
-      console.log("Page", page_num);
     });
   }
   window.push_boxes_to_augnotes = push_boxes_to_augnotes;
   $(".send_augnotes").click(function() {
     push_boxes_to_augnotes();
-    console.log("SUBMIT!");
     var form = $("#augnotes_submission");
     var input = form.find('input[name="data"]');
     input.val(JSON.stringify(augnotes.data));
-    // form.submit();
+    form.submit();
   })
 
   var nextpg = $("#next_page");
