@@ -62,6 +62,12 @@ input.measure_time {
   margin-top:5px;
   border: 1px solid #000;
 }
+
+.empty-error {
+  color:red;
+  font-weight: bold;
+}
+
 input.error {
 	border-color: red;
 }
@@ -70,20 +76,25 @@ input.current {
   color:white;
 }
 
+.button:active {
+  background: #333;
+  color: #CCC;
+}
+
 .send_augnotes {
-  width: 70%;
+  /*width: 70%;*/
   margin-left:auto;
   margin-right:auto;
   display:block;
   margin-top:40px;
-  font-size:120%;
+  font-size:110%;
   border: 1px solid black;
   background: white;
   /*border-radius: 10px*/
 }
 .send_augnotes:hover {
-  width: 75%;
-  font-size:130%;
+  /*width: 75%;*/
+  /*font-size:130%;*/
   background: #EEE;
   /*border-radius: 10px*/
 }

@@ -3,6 +3,8 @@
 <head>
 <link type="text/css" rel="stylesheet" href="/static/css/style.css"/>
 <script src="/static/js/jquery.js"></script>
+<script src="/static/js/jquery-ui.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css">
 <title>
     <%block name="title">
     Augmented Notes
@@ -13,7 +15,7 @@
   </%block>
 </head>
 <body>
-  <div class="center-content">  
+  <div class="center-content">
     <%block name="center_content">
       <div id="header">
         <%block name="header">

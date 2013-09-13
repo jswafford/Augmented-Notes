@@ -4,11 +4,11 @@
 <script>
 $(function() {
   var template = $(".score-upload").eq(0).clone();
-  console.log("template is:", template)
   template.find("label").text("");
   $(".add-score-upload").click(function() {
-    console.log("Detected click!")
-    $(".score-upload-list").append(template.clone());
+    var new_block = template.clone();
+    $(".score-upload-list").append(new_block);
+    new_block.find("input").click();
   })
 })
 </script>
@@ -19,14 +19,23 @@ $(function() {
   <div class="instructions">
     <h1>Welcome to Augmented Notes</h1>
     <p>
-      To get started making your own website, upload an mp3 and ogg version of your audio file, an MEI file, and the image files of your score, then follow the directions. At the end, Augmented Notes will output a zip file with everything you need to have your own website that highlights each measure of a score in time with an audio file.
+      Augmented Notes integrates scores and audio files to produce interactive
+      multimedia websites in which measures of the score are highlighted in time
+      with music.
+    </p><p>
+      You can see it in action
+       <a href="http://www.songsofthevictorians.com/balfe/archive.html">here</a>
+       as part of the digital archive in <a href="http://www.songsofthevictorians.com/">Songs of the Victorians</a>.
     </p>
-    <div class="error"
+    <p>
+      To get started making your own website, upload mp3 and ogg versions of your audio file, images of the pages of your score, and, if you have one, an MEI file containing measure boundaries, then hit submit below. Augmented Notes will help you mark the meaures on the score and assign them times, and will output a zip file of everything you need to have your own website.
+    </p>
+    <div class="empty-error"
       %if not empty:
         style="display:none"
       %endif
       >
-      Please upload files for all categories.
+      Please provide an MP3, an OGG, and score images.
     </div>
     <form action="${upload_url}" method="POST" enctype="multipart/form-data">
       <label class="upload-label" for="mp3">Upload MP3:</label>
@@ -36,9 +45,9 @@ $(function() {
       <label class="upload-label" for="ogg">Upload OGG:</label>
       <input type="file" name="ogg" id="ogg">
       <br/>
-      <br/>
-      <label class="upload-label" for="mei">Upload MEI:</label>
-      <input type="file" name="mei" id="mei">
+      <span style="font-size:80%; color:#666">
+      (If you don't have an OGG, you can create one <a href="http://audio.online-convert.com/convert-to-ogg">here</a>)
+      </span>
       <br/>
       <br/>
       <div class="score-upload-list">
@@ -50,6 +59,10 @@ $(function() {
       </div>
       <label class="upload-label"></label>
       <a class="add-score-upload">+ Add another page</a>
+      <br/>
+      <label class="upload-label" for="mei">Upload MEI (optional):</label>
+      <input type="file" name="mei" id="mei">
+      <br/>
       <br/>
       <input type="submit" name="submit" value="Submit"><br/>
     </form>

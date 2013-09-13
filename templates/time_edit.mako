@@ -9,6 +9,14 @@
 </%block>
 
 <%block name="extrahead">
+	<style>
+	.box {
+		display:none;
+	}
+	.box.selected {
+		display:block;
+	}
+	</style>
 	<script src="/static/js/augnotes.js"></script>
 	<script src="/static/js/augnotesui.js"></script>
 	<script src="/static/js/augnotesTimeEdit.js"></script>
@@ -22,22 +30,22 @@
 		var audio_elt = $(".audtools audio");
 		window.augnotes_ui = new AugmentedNotesUI(augnotes, score_div, audio_elt);
 		window.an_time_edit = new AugNotesTimeEdit(augnotes);
-		
+
 		$(".next").click(function() {
 			augnotes_ui.goToNextMeasure();
 		});
-		
+
 		$(".prev").click(function() {
 			augnotes_ui.goToPrevMeasure();
 		});
-		
+
 		$(".startover").click(function() {
 			augnotes_ui.setCurrentTime(0);
 		});
-		
+
 		$(".save").click(function() {
 			var measure_id = augnotes_ui.currentMeasureID();
-			var current_time = augnotes_ui.currentTime();
+			var current_time = augnotes_ui.currentTime()-.3;
 			var measure = augnotes.getMeasure(measure_id);
 			// If the measure end is <= 0, we haven't filled it in yet, so we want
 			// to update this measure.
@@ -77,7 +85,10 @@
 		})
 
 		$(".send_augnotes").click(function() {
-			$.post("/time_edit/"+${song_id}, {"data":JSON.stringify(augnotes.data)});
+			var form = $("#augnotes_submission");
+			var input = form.find('input[name="data"]');
+			input.val(JSON.stringify(augnotes.data));
+			form.submit();
 		})
 	});
 	</script>
@@ -87,7 +98,10 @@
 <%block name="content">
 	<div class="instructions">
 	<h1>Set the Measure Times</h1>
-	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. Once all the measures have been completed, you can click the play button to make sure the box moves in time with the music.</p>
+	<p>To set the measure times, click on the "play" button for the audio file, and click the "save" button at the end of each measure. You can also click on the times to edit them directly. Once all the measures have been completed, you can click "back to start" and play from the beginning to confirm the times.</p>
+	<p>
+		When you're done, click "Download Zip" to get your new website!
+	</p>
 	</div>
 	<div class="left_panel score-div">
 		% for url in urls['pages']:
@@ -104,17 +118,20 @@
 				Your browser does not support the audio tag!
 			</audio>
 			<div class="toolbar">
-				<button class="save">save</button>
-				<button class="prev">previous</button>
-				<button class="next">next</button>
-				<button class="startover">back to start</button>
+				<button class="button save">save</button>
+				<button class="button prev">previous</button>
+				<button class="button next">next</button>
+				<button class="button startover">back to start</button>
 			</div>
 		</div>
 		<div class="time">
 			<div id="time_list">
 			</div>
 		</div>
-		<button type="button" class="send_augnotes">Submit the times</button>
+		<button type="button" class="button send_augnotes">Download Zip</button>
 	</div>
 	<div style="clear:both"></div>
+	<form id="augnotes_submission" style="display:none" action="/time_edit/${song_id}" method="POST">
+	  <input type='hidden' name="data"/>
+	</form>
 </%block>
