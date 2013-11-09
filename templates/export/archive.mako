@@ -50,7 +50,7 @@ import json
         <img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/88x31.png" />
       </a>
       <a class="augnotes-badge" href="http://www.augmentednotes.com">
-        <img alt="Powered by Augmented Notes" style="border-width:0" src="/static/img/augnotes_badge.png" width="88px"/>
+        <img alt="Powered by Augmented Notes" style="border-width:0" src="./static/img/augnotes_badge.png" width="88px"/>
       </a>
     </div>
   </div>

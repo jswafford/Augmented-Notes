@@ -224,6 +224,7 @@ class ZipFileHandler(webapp2.RequestHandler):
     z.writestr("export/static/js/augnotesui.js", open("export_assets/augnotesui.js").read())
     z.writestr("export/static/js/jquery.js", open("export_assets/jquery.js").read())
     z.writestr("export/static/css/export.css", open("export_assets/export.css").read())
+    z.writestr("export/static/img/augnotes_badge.png", open("export_assets/augnotes_badge.png").read())
     page_urls = []
     for page in song.page_list:
       page_info = blobstore.BlobInfo.get(page)
@@ -241,7 +242,7 @@ class ZipFileHandler(webapp2.RequestHandler):
     z.close()
 
     self.response.headers["Content-Type"] = "multipart/x-zip"
-    self.response.headers['Content-Disposition'] = "attachment; filename=test.zip"
+    self.response.headers['Content-Disposition'] = "attachment; filename=your_website.zip"
     self.response.out.write(output.getvalue())
 
 class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
