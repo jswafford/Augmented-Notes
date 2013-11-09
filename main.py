@@ -25,6 +25,7 @@ import json
 # For local testing only, the local runner seems to miss lxml
 sys.path.append("/usr/local/lib/python2.7/site-packages/")
 sys.path.append("/Users/dplepage/.virtualenvs/augnotes/lib/python2.7/site-packages/")
+sys.path.append("/Users/jswafford/.virtualenvs/AugNotes/lib/python2.7/site-packages/")
 import lxml
 
 from google.appengine.ext import db
