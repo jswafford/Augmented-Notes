@@ -113,6 +113,49 @@ $(window).load(function(){
     newbox.css("height", maxy - miny);
   }
 
+  function group_by_line(boxes) {
+    var lines = [];
+    var line = [];
+    var last_x = -1000;
+    for (var i=0; i < boxes.length; i++) {
+      var box = boxes.eq(i);
+      var x = box.offset().left;
+      if (x < last_x) {
+        lines.push(line)
+        line = [box];
+      } else {
+        line.push(box);
+      }
+      last_x = x;
+    }
+    lines.push(line);
+    return lines;
+  }
+
+  function equalize_heights(boxes) {
+    var min_top = 10000000;
+    var max_bottom = 0;
+    for (var i=0; i<boxes.length; i++) {
+      var box = $(boxes[i]);
+      var top = box.offset().top;
+      min_top = Math.min(min_top, top);
+      max_bottom = Math.max(max_bottom, top+box.height());
+    }
+    var height = max_bottom - min_top;
+    for (var i=0; i<boxes.length; i++) {
+      var box = $(boxes[i]);
+      box.offset({top:min_top});
+      box.height(height);
+    }
+  }
+
+  function fix_visible_boxes() {
+    var lines = group_by_line(visible_boxes());
+    for (var i=0; i<lines.length; i++) {
+      equalize_heights(lines[i]);
+    }
+  }
+
   function push_boxes_to_augnotes() {
     $(".score-page").each(function(page_num) {
       var score_page = $(this);
@@ -167,6 +210,7 @@ $(window).load(function(){
   var nextpg = $("#next_page");
   var prevpg = $("#prev_page");
   var delbtn = $("#delete_box_btn");
+  var alignbtn = $("#align_boxes_btn");
   var btns_on_selected = $("#delete_box_btn, #renumber_selected");
 
 nextpg.click(function() {
@@ -212,6 +256,8 @@ prevpg.click(function() {
       $(".box").draggable("option", "disabled", true );
     }
   })
+
+  alignbtn.click(fix_visible_boxes);
 
   delbtn.click(function() {
     selected_boxes().remove();
@@ -309,8 +355,9 @@ prevpg.click(function() {
       </audio>
     </div>
     <button class="button" id="new_box_btn">Add Boxes</button>
-    <button class="button" id="renumber_selected">Renumber selected box</button>
-    <button class="button" id="delete_box_btn" disabled="true">Delete selected box</button>
+    <button class="button" id="renumber_selected">Renumber Selected Box</button>
+    <button class="button" id="align_boxes_btn">Align Boxes</button>
+    <button class="button" id="delete_box_btn" disabled="true">Delete Selected Box</button>
     <button class="button" id="next_page">Next Page</button>
     <button class="button" id="prev_page" disabled="true">Previous Page</button>
      <button class="send_augnotes button" type="button">Save and Continue</button>
