@@ -45,7 +45,7 @@
 
 		$(".save").click(function() {
 			var measure_id = augnotes_ui.currentMeasureID();
-			var current_time = augnotes_ui.currentTime()-.3;
+			var current_time = Math.max(0.01, augnotes_ui.currentTime()-.3);
 			var measure = augnotes.getMeasure(measure_id);
 			// If the measure end is <= 0, we haven't filled it in yet, so we want
 			// to update this measure.
@@ -118,10 +118,10 @@
 				Your browser does not support the audio tag!
 			</audio>
 			<div class="toolbar">
-				<button class="button save">save</button>
-				<button class="button prev">previous</button>
-				<button class="button next">next</button>
-				<button class="button startover">back to start</button>
+				<button class="button save">Save</button>
+				<button class="button prev">&laquo;</button>
+				<button class="button next">&raquo;</button>
+				<button class="button startover">Back to start</button>
 			</div>
 		</div>
 		<div class="time">

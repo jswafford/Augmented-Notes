@@ -75,6 +75,14 @@ input.current {
 	background-color: black;/*#80512C;*/
   color:white;
 }
+button {
+  margin-top: 15px;
+  font-size: 100%;
+  border: 1px solid black;
+  background: white;
+  border-radius: 10px;
+}
+
 
 .button:active {
   background: #333;
