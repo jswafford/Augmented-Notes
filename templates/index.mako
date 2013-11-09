@@ -28,7 +28,10 @@ $(function() {
        as part of the digital archive in <a href="http://www.songsofthevictorians.com/">Songs of the Victorians</a>.
     </p>
     <p>
-      To get started making your own website, upload mp3 and ogg versions of your audio file, images of the pages of your score, and, if you have one, an MEI file containing measure boundaries, then hit submit below. Augmented Notes will help you mark the meaures on the score and assign them times, and will output a zip file of everything you need to have your own website.
+      To get started making your own website, upload mp3 and ogg versions of your audio file, images of the pages of your score, and, if you have one, an MEI file containing measure boundaries, then hit submit below. Augmented Notes will help you mark the measures on the score and assign them times, and will output a zip file of everything you need to have your own website.
+    </p>
+    <p>
+    Want to try Augmented Notes, but don't have the right files? Click <a href="/example">here</a> to try it with Bach's Prelude No. 1 in C major (BWV 846) <a href="http://en.wikipedia.org/wiki/File:Johann_Sebastian_Bach_-_The_Well-tempered_Clavier_-_Book_1_-_02Epre_cmaj.ogg">performed by Martha Goldstein!</a>
     </p>
     <div class="empty-error"
       %if not empty:
