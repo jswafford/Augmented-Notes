@@ -96,7 +96,7 @@ class Song(db.Model):
 #  = Login Management =
 #  ====================
 
-def valid_user(user):
+def is_admin(user):
   allowed_emails = ['jswaffor@gmail.com', 'jes8zv@virginia.edu', 'dplepage@gmail.com']
   return user is not None and user.email() in allowed_emails
 
@@ -105,7 +105,7 @@ def check_login(handler):
   # if handler.request.host.startswith("localhost"):
   #   return
   user = users.get_current_user()
-  if not valid_user(user):
+  if not is_admin(user):
     handler.redirect('http://anglophileinacademia.blogspot.com/2013/01/a-progress-update-and-important.html')
 
 class SignInHandler(webapp2.RequestHandler):
