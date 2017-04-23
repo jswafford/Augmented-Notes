@@ -197,7 +197,10 @@ class DeleteManyHandler(webapp2.RequestHandler):
 class MainHandler(webapp2.RequestHandler):
   def get(self):
     check_login(self)
-    upload_url = blobstore.create_upload_url('/upload')
+    try:
+      upload_url = blobstore.create_upload_url('/upload')
+    except:
+      upload_url = None
     empty = bool(self.request.get('empty'))
     template = templates.get_template("index.mako")
     self.response.out.write(template.render(upload_url = upload_url, empty=empty))
