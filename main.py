@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import os, os.path
 import urllib
 import webapp2
 import sys
@@ -8,6 +8,7 @@ import glob
 import zipfile
 import cStringIO
 import json
+import requests
 
 # For local testing only, the local runner seems to miss lxml
 sys.path.append("/Users/dplepage/.virtualenvs/augnotes/lib/python2.7/site-packages/")
@@ -38,28 +39,36 @@ def make_empty_data(npages):
     {"measure_ends": [], "measure_bounds": []} for _ in range(npages)
   ]}
 
-
-def add_file_as_blob(filename, mime_type):
-  blob_name = files.blobstore.create(mime_type='image/jpeg',
-    _blobinfo_uploaded_filename=filename.split("/")[-1])
-  with files.open(blob_name, 'a') as f:
-    f.write(open(filename).read())
-  files.finalize(blob_name)
-  return files.blobstore.get_blob_key(blob_name)
-
+def get_or_create_example():
+  example_key = db.Key.from_path("Song", "EXAMPLE")
+  example = db.get(example_key)
+  if not example:
+    upload_url = blobstore.create_upload_url('/upload')
+    images = list(sorted(glob.glob("example_data/pages/*.jpg")))
+    files = [
+      ('mp3', ('music.mp3', open('example_data/music.mp3', 'rb'), 'audio/mp3')),
+      ('ogg', ('music.ogg', open('example_data/music.ogg', 'rb'), 'audio/ogg')),
+    ]
+    files.extend([
+      ('page', (os.path.basename(f), open(f, 'rb'), 'image/jpeg')) for f in images])
+    r = requests.post(upload_url, files=files, allow_redirects=False)
+    key = int(r.headers['location'].split("/box_edit/")[1])
+    tmp = Song.get_by_id(key)
+    example = Song(key_name="EXAMPLE", mp3=tmp.mp3, ogg=tmp.ogg, page_list=tmp.page_list, json=tmp.json)
+    example.put()
+    tmp.delete()
+  return example
 
 def make_example(include_data=False):
-  mp3 = add_file_as_blob('example_data/music.mp3', 'audio/mp3')
-  ogg = add_file_as_blob('example_data/music.ogg', 'audio/ogg')
-  images = list(sorted(glob.glob("example_data/pages/*.jpg")))
-  page_list = [add_file_as_blob(img_name, 'image/jpeg') for img_name in images]
+  example = get_or_create_example()
   if include_data:
     json_string = open("example_data/data.js").read()
   else:
-    json_string = json.dumps(make_empty_data(len(page_list)))
-  song = Song(mp3=mp3, ogg=ogg, page_list=page_list, json=json_string)
+    json_string = example.json
+  song = Song(mp3=example.mp3, ogg=example.ogg, page_list=example.page_list, json=json_string)
   song.put()
   return song
+
 
 class ExampleHandler(webapp2.RequestHandler):
   def get(self):
