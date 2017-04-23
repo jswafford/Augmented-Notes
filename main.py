@@ -116,6 +116,83 @@ class SignInHandler(webapp2.RequestHandler):
     else:
       self.redirect('/')
 
+class SongInfo(object):
+  def __init__(self, song, example=None):
+    self.song = song
+    self.example = example
+    self.mp3 = blobstore.BlobInfo.get(song.mp3.key())
+    self.ogg = blobstore.BlobInfo.get(song.ogg.key())
+    self.from_example = self.like_example = self.is_example = False
+    if example:
+      if self.song.key().name() == self.example.song.key().name():
+        self.is_example = True
+      else:
+        self.from_example = self.mp3.key() == example.mp3.key()
+        self.like_example = self.mp3.md5_hash == example.mp3.md5_hash
+        self.like_example &= self.ogg.md5_hash == example.ogg.md5_hash
+    if self.mp3 is None or self.ogg is None:
+      self.deleted = True
+      self.pages = []
+      self.total_size = 0
+      self.npages = 0
+      return
+    self.pages = [blobstore.BlobInfo.get(k) for k in song.page_list]
+    self.total_size = self.mp3.size + self.ogg.size
+    self.total_size += sum(p.size for p in self.pages)
+    self.npages = len(self.pages)
+
+class ListSongsHandler(webapp2.RequestHandler):
+  def get(self):
+    if not is_admin(users.get_current_user()):
+      self.redirect(users.create_login_url(self.request.uri))
+      return
+    example = SongInfo(get_or_create_example())
+    page = int(self.request.get("page", 1))
+    nitems = int(self.request.get("nitems", 20))
+    offset = (page-1)*nitems
+    total_items = offset + Song.all().count(offset=offset, limit=600)
+    if total_items == offset+600:
+      total_items = None
+    songs = Song.all().run(offset=offset, limit=nitems)
+    template = templates.get_template("list.mako")
+
+    self.response.out.write(template.render(
+      total_items=total_items,
+      offset=offset,
+      nitems=nitems,
+      songs=[SongInfo(s, example) for s in songs],
+      example=example))
+
+def delete_song(song, example):
+  if not is_admin(users.get_current_user()):
+    raise Exception()
+  if song.key().name() == 'EXAMPLE':
+    raise Exception()
+  blobs = [song.mp3.key(), song.ogg.key()] + song.page_list
+  do_not_delete = [example.mp3.key(), example.ogg.key()] + example.page_list
+  blobs = set(blobs)-set(do_not_delete)
+  song.delete()
+  blobstore.delete(blobs)
+
+class DeleteHandler(webapp2.RequestHandler):
+  def post(self, song_id):
+    if not is_admin(users.get_current_user()):
+      self.redirect(users.create_login_url(self.request.uri))
+      return
+    song = Song.get_by_id(int(song_id))
+    example = get_or_create_example()
+    delete_song(song, example)
+    return self.redirect("/songs")
+
+
+class DeleteManyHandler(webapp2.RequestHandler):
+  def post(self):
+    example = get_or_create_example()
+    for song_id in self.request.POST.getall("ids"):
+      song = Song.get_by_id(int(song_id))
+      delete_song(song, example)
+    return self.redirect("/songs")
+
 
 class MainHandler(webapp2.RequestHandler):
   def get(self):
@@ -249,6 +326,9 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    ('/delete_many', DeleteManyHandler),
+    ('/songs', ListSongsHandler),
+    ('/delete/([^/]+)', DeleteHandler),
     ('/upload', UploadHandler),
     ('/login', SignInHandler),
     ('/serve/([^/]+)', ServeHandler),
