@@ -13,6 +13,16 @@
   <meta name="description" content="Augmented Notes is a tool for creating websites that facilitate interdisciplinary music and text scholarship."/>
   <%block name="extrahead">
   </%block>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-44029101-1', 'augmentednotes.com');
+  ga('send', 'pageview');
+
+</script>
 </head>
 <body>
   <div class="center-content">
