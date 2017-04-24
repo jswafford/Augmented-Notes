@@ -102,7 +102,7 @@ $(window).load(function(){
   }
 
   function set_box(x, y) {
-
+    // Offset used to put box in upper left side of score, not of window
     var miny = Math.min(starty, y);
     var maxy = Math.max(starty, y);
     var minx = Math.min(startx, x);
@@ -112,7 +112,7 @@ $(window).load(function(){
     newbox.css("width", maxx - minx);
     newbox.css("height", maxy - miny);
   }
-
+  // Groups box by line for "align boxes" button
   function group_by_line(boxes) {
     var lines = [];
     var line = [];
@@ -131,7 +131,7 @@ $(window).load(function(){
     lines.push(line);
     return lines;
   }
-
+  // Draws equalized heights for boxes
   function equalize_heights(boxes) {
     var min_top = 10000000;
     var max_bottom = 0;
@@ -148,14 +148,15 @@ $(window).load(function(){
       box.height(height);
     }
   }
-
+  // Equalizes heights for boxes on each line
   function fix_visible_boxes() {
     var lines = group_by_line(visible_boxes());
     for (var i=0; i<lines.length; i++) {
       equalize_heights(lines[i]);
     }
   }
-
+  // Pushes box data to augnotes.data, makes nonvisible boxes hidden so
+  // browser can compute their positions
   function push_boxes_to_augnotes() {
     $(".score-page").each(function(page_num) {
       var score_page = $(this);
@@ -187,6 +188,7 @@ $(window).load(function(){
           'visibility':'visible'
         });
       }
+      // Ensures that measure_bounds (box dimensions) and measure ends line up
       var nmeasures = page_data.measure_bounds.length;
       var tmp = page_data.measure_ends;
       page_data.measure_ends = []
@@ -198,6 +200,7 @@ $(window).load(function(){
       }
     });
   }
+  // When button is clicked, save boxes to augnotes and submit the form
   window.push_boxes_to_augnotes = push_boxes_to_augnotes;
   $(".send_augnotes").click(function() {
     push_boxes_to_augnotes();
@@ -206,13 +209,14 @@ $(window).load(function(){
     input.val(JSON.stringify(augnotes.data));
     form.submit();
   })
-
+  // Button definitions
   var nextpg = $("#next_page");
   var prevpg = $("#prev_page");
   var delbtn = $("#delete_box_btn");
   var alignbtn = $("#align_boxes_btn");
   var btns_on_selected = $("#delete_box_btn, #renumber_selected");
 
+// Hooks up next page button and functionality
 nextpg.click(function() {
     augnotes_ui.goToNextPage();
     number_boxes();
@@ -227,7 +231,7 @@ nextpg.click(function() {
         prevpg.attr('disabled', false);
       }
   })
-
+// Hooks up previous page button and functionality
 prevpg.click(function() {
     augnotes_ui.goToPrevPage();
     number_boxes();
@@ -242,7 +246,7 @@ prevpg.click(function() {
         prevpg.attr('disabled', false);
       }
   })
-
+  // Hooks up Add boxes button and functionality
   $("#new_box_btn").click(function() {
     if (mode === 'create') {
       set_mode('edit');
@@ -256,15 +260,18 @@ prevpg.click(function() {
       $(".box").draggable("option", "disabled", true );
     }
   })
-
+  // Hooks up Align boxes button and functionality
   alignbtn.click(fix_visible_boxes);
 
+  // Hooks up Delete boxes buton and functionality
   delbtn.click(function() {
     selected_boxes().remove();
     number_boxes();
     btns_on_selected.attr('disabled', true);
   })
 
+  // Creates a new box on user click (and puts it after selected box, if a
+  // selected box exists)
   $(".score-page").mousedown(function (event) {
     if (mode === 'create') {
       startx = event.pageX;
@@ -284,7 +291,7 @@ prevpg.click(function() {
       return false;
     }
   })
-
+  // Selects a box when the user clicks on it
   $("div.score-div").on("mousedown", ".box", function(event) {
     if (mode === 'edit' && ! $(this).hasClass("selected")) {
       btns_on_selected.attr("disabled", false);
@@ -292,7 +299,7 @@ prevpg.click(function() {
       set_mode('edit');
     }
   })
-
+  // Switches from drawing to create mode on mouseup
   $(document).mouseup(function (event) {
     if (mode === 'drawing') {
       set_box(event.pageX, event.pageY);
@@ -303,6 +310,7 @@ prevpg.click(function() {
       event.preventDefault();
       return false;
     }
+  // Resize box while dragging in drawing mode
   }).mousemove(function (event) {
     if (mode === 'drawing') {
       set_box(event.pageX, event.pageY);

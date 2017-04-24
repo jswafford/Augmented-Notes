@@ -1,3 +1,28 @@
+/*
+
+Augnotes data format: A dictionary with a single key, 'pages'. data.pages is a
+list of page entries. Each page entry is a dict with .measure_ends, which is a
+list of numbers indicating timestamps when each measure ends, and
+.measure_bounds, which is a list of (x, y, width, height) entries describing
+the physical bounds of the box around that measure.
+
+This represents all the annotated measures in a single song, spanning multiple
+pages.
+
+{
+  pages: [{
+    measure_ends: [num, num, ...],
+    measure_bounds: [(x,y,w,h), (x,y,w,h), ...]
+  },{
+    measure_ends: [...],
+    measure_bounds: [...]
+  },
+  ...
+  ]}
+}
+
+*/
+
 // Defines measure with start time, end time, x, y, width, and height
 function Measure(start, end, rect) {
 	this.start = start;
@@ -9,6 +34,7 @@ function Measure(start, end, rect) {
 }
 
 // Defines MeasureID class, with page_num and measure_num
+// This uniquely identifies a measure in a song
 function MeasureID(page_num, measure_num) {
 	this.page_num = page_num;
 	this.measure_num = measure_num;
@@ -88,6 +114,7 @@ AugmentedNotes.prototype.getMeasure = function(measure_id) {
 	}
 	return new Measure(start, end, rect);
 }
+
 //Returns MeasureID for given time
 AugmentedNotes.prototype.measureIDAtTime = function(time) {
 	// Keep track of the last measure we've encountered

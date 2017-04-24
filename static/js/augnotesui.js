@@ -13,7 +13,8 @@ function getImageDimensions(el, onReady) {
     };
     image.src = src;
 }
-
+// Defines AugmentedNotesUI class
+// Draws boxes and keeps boxes in synch with audio file
 function AugmentedNotesUI(augnotes, score_div, audio_elt) {
     this.augnotes = augnotes;
     this.audio_elt = audio_elt;
@@ -26,7 +27,8 @@ function AugmentedNotesUI(augnotes, score_div, audio_elt) {
         self.highlightCurrentTime(this.currentTime);
     })
 }
-
+// Creates a container ('box-container') to store all the boxes per page then
+// fills the container with boxes based on augnotes data
 AugmentedNotesUI.prototype.apply_boxes = function() {
     var self = this;
     this.score_div.find(".score-page").each(function(page_num) {
@@ -67,7 +69,7 @@ AugmentedNotesUI.prototype.apply_boxes = function() {
         })
     })
 }
-
+// sets "selected" class on box for a given measure_id
 AugmentedNotesUI.prototype.highlightMeasure = function(measure_id) {
     var old_id = this.current_measure_id;
     this.show_page(measure_id.page_num);
@@ -80,16 +82,18 @@ AugmentedNotesUI.prototype.highlightMeasure = function(measure_id) {
         $(this).trigger("AugmentedNotesUI-page_change");
     }
 }
-
+//  sets "selected" class on box for a given time
 AugmentedNotesUI.prototype.highlightTime = function(time) {
     var measure_id = this.augnotes.measureIDAtTime(time)
     this.highlightMeasure(measure_id)
 }
 
+// sets "selected" class on box for the current time
 AugmentedNotesUI.prototype.highlightCurrentTime = function() {
     this.highlightTime(this.currentTime())
 }
 
+// shows the indicated page
 AugmentedNotesUI.prototype.show_page = function(num) {
     var page_num = this.augnotes.clampPageNum(num);
     if (page_num === this.curr_page)
@@ -100,38 +104,46 @@ AugmentedNotesUI.prototype.show_page = function(num) {
     this.curr_page = page_num;
 }
 
+// returns measureID for currently playing measure
 AugmentedNotesUI.prototype.currentMeasureID = function() {
     var currentTime = this.currentTime();
     return this.augnotes.measureIDAtTime(currentTime);
 }
 
+// returns page number for currently playing measure
 AugmentedNotesUI.prototype.currentPageNum = function() {
     return this.currentMeasureID().page_num;
 }
 
-AugmentedNotesUI.prototype.goToNextPage = function() {
-    var nextPage = this.curr_page + 1;
-    return this.show_page(nextPage);
-}
-
-AugmentedNotesUI.prototype.goToPrevPage = function() {
-    var prevPage = this.curr_page - 1;
-    return this.show_page(prevPage);
-}
-
+// returns measureNum for currently playing measure
 AugmentedNotesUI.prototype.currentMeasureNum = function() {
     return this.currentMeasureID().measure_num;
 }
 
+// goes to the next page 
+AugmentedNotesUI.prototype.goToNextPage = function() {
+    var nextPage = this.curr_page + 1;
+    this.show_page(nextPage);
+}
+
+// goes to the previous page
+AugmentedNotesUI.prototype.goToPrevPage = function() {
+    var prevPage = this.curr_page - 1;
+    this.show_page(prevPage);
+}
+
+// return current time
 AugmentedNotesUI.prototype.currentTime = function() {
     return this.audio_elt[0].currentTime;
 }
 
+// sets current time
 AugmentedNotesUI.prototype.setCurrentTime = function(time) {
     this.audio_elt[0].currentTime = time;
     this.highlightCurrentTime();
 }
 
+// goes to next measure
 AugmentedNotesUI.prototype.goToNextMeasure = function() {
     var page_num = this.currentPageNum();
     var m_num = this.currentMeasureNum();
@@ -139,6 +151,7 @@ AugmentedNotesUI.prototype.goToNextMeasure = function() {
     this.setCurrentTime(end_time+.001);
 }
 
+// goes to previous measure
 AugmentedNotesUI.prototype.goToPrevMeasure = function() {
     var page_num = this.currentPageNum();
     var m_num = this.currentMeasureNum();
@@ -152,10 +165,12 @@ AugmentedNotesUI.prototype.goToPrevMeasure = function() {
     this.setCurrentTime(start_time+.001);
 }
 
+// pauses audio
 AugmentedNotesUI.prototype.pause = function() {
     this.audio_elt[0].pause();
 }
 
+// plays audio
 AugmentedNotesUI.prototype.play = function() {
     this.audio_elt[0].play();
 }
