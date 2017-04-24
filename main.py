@@ -17,12 +17,10 @@ import lxml
 
 from google.appengine.ext import db
 from google.appengine.api import users
-
-from mako.lookup import TemplateLookup
-
-from google.appengine.api import files
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
+
+from mako.lookup import TemplateLookup
 
 from parse_mei import parse_mei
 
@@ -88,7 +86,7 @@ class Song(db.Model):
   mp3 = blobstore.BlobReferenceProperty(required=True)
   ogg = blobstore.BlobReferenceProperty(required=True)
   mei = blobstore.BlobReferenceProperty(required=False)
-  json = db.TextProperty(required=True)
+  json = db.TextProperty(required=False)
   page_list = db.ListProperty(blobstore.BlobKey, required=True)
 
 
